@@ -5,7 +5,7 @@ exports.addUser = async (req, res) => {
   try {
     const { name, email } = req.body;
     if(!name || !email){
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ error: "name and email are required" });
     }
     const newUser = new User({ name, email });
     await newUser.save();

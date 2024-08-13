@@ -79,9 +79,8 @@ exports.editTask = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-
-    // Find the specific task
-    const task = user.tasks.id(taskId);
+    // Find the specific task using mongooes inbuilt method.id
+    const task = user.tasks.id(taskId); 
     if (!task || task.isDeleted) {
       return res.status(404).json({ error: 'Task not found or deleted' });
     }
