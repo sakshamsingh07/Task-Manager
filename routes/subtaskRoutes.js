@@ -11,6 +11,176 @@
 // module.exports = router;
 
 
+// const express = require('express');
+// const router = express.Router();
+// const subtaskController = require('../controllers/subtaskController');
+
+// /**
+//  * @swagger
+//  * tags:
+//  *   name: Subtasks
+//  *   description: The subtasks managing API
+//  */
+
+// /**
+//  * @swagger
+//  * /tasks/{taskId}/subtasks:
+//  *   get:
+//  *     summary: Get all subtasks for a task
+//  *     tags: [Subtasks]
+//  *     parameters:
+//  *       - in: path
+//  *         name: taskId
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *         description: The ID of the task to get subtasks from
+//  *     responses:
+//  *       200:
+//  *         description: The list of subtasks
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/Subtask'
+//  *       400:
+//  *         description: Invalid task ID
+//  *       404:
+//  *         description: Task not found or deleted
+//  *       500:
+//  *         description: Server error
+//  */
+// router.get('/tasks/:taskId/subtasks', subtaskController.listSubtasks);
+
+// /**
+//  * @swagger
+//  * /tasks/{taskId}/subtasks:
+//  *   post:
+//  *     summary: Create a new subtask
+//  *     tags: [Subtasks]
+//  *     parameters:
+//  *       - in: path
+//  *         name: taskId
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *         description: The ID of the task to add a subtask to
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         application/json:
+//  *           schema:
+//  *             type: object
+//  *             properties:
+//  *               subject:
+//  *                 type: string
+//  *               deadline:
+//  *                 type: string
+//  *                 format: date
+//  *               status:
+//  *                 type: string
+//  *                 enum: [pending, in progress, completed]
+//  *     responses:
+//  *       201:
+//  *         description: Subtask created successfully
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               $ref: '#/components/schemas/Subtask'
+//  *       400:
+//  *         description: Invalid request
+//  *       404:
+//  *         description: Task not found or deleted
+//  *       500:
+//  *         description: Server error
+//  */
+// router.post('/tasks/:taskId/subtasks', subtaskController.addSubtask);
+
+// /**
+//  * @swagger
+//  * /tasks/{taskId}/subtasks/{subtaskId}:
+//  *   put:
+//  *     summary: Update a subtask
+//  *     tags: [Subtasks]
+//  *     parameters:
+//  *       - in: path
+//  *         name: taskId
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *         description: The ID of the task containing the subtask
+//  *       - in: path
+//  *         name: subtaskId
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *         description: The ID of the subtask to update
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         application/json:
+//  *           schema:
+//  *             type: object
+//  *             properties:
+//  *               subject:
+//  *                 type: string
+//  *               deadline:
+//  *                 type: string
+//  *                 format: date
+//  *               status:
+//  *                 type: string
+//  *                 enum: [pending, in progress, completed]
+//  *     responses:
+//  *       200:
+//  *         description: The updated subtask
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               $ref: '#/components/schemas/Subtask'
+//  *       400:
+//  *         description: Invalid request
+//  *       404:
+//  *         description: Subtask not found or deleted
+//  *       500:
+//  *         description: Server error
+//  */
+// router.put('/tasks/:taskId/subtasks/:subtaskId', subtaskController.editSubtask);
+
+// /**
+//  * @swagger
+//  * /tasks/{taskId}/subtasks/{subtaskId}:
+//  *   delete:
+//  *     summary: Delete a subtask
+//  *     tags: [Subtasks]
+//  *     parameters:
+//  *       - in: path
+//  *         name: taskId
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *         description: The ID of the task containing the subtask
+//  *       - in: path
+//  *         name: subtaskId
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *         description: The ID of the subtask to delete
+//  *     responses:
+//  *       200:
+//  *         description: Subtask marked as deleted
+//  *       400:
+//  *         description: Invalid subtask ID
+//  *       404:
+//  *         description: Subtask not found or already deleted
+//  *       500:
+//  *         description: Server error
+//  */
+// router.delete('/tasks/:taskId/subtasks/:subtaskId', subtaskController.deleteSubtask);
+
+// module.exports = router;
+
+
 const express = require('express');
 const router = express.Router();
 const subtaskController = require('../controllers/subtaskController');
@@ -29,12 +199,12 @@ const subtaskController = require('../controllers/subtaskController');
  *     summary: Get all subtasks for a task
  *     tags: [Subtasks]
  *     parameters:
- *       - in: path
+ *       - in: query
  *         name: taskId
  *         required: true
  *         schema:
  *           type: string
- *         description: The ID of the task to get subtasks from
+ *         description: The task ID to filter subtasks
  *     responses:
  *       200:
  *         description: The list of subtasks
@@ -44,10 +214,20 @@ const subtaskController = require('../controllers/subtaskController');
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Subtask'
+ *             examples:
+ *               example1:
+ *                 value: [
+ *                   {
+ *                     "subject": "Complete documentation",
+ *                     "deadline": "2024-08-14T19:23:37.434Z",
+ *                     "status": "pending",
+ *                     "isDeleted": false
+ *                   }
+ *                 ]
  *       400:
  *         description: Invalid task ID
  *       404:
- *         description: Task not found or deleted
+ *         description: Task not found
  *       500:
  *         description: Server error
  */
@@ -59,13 +239,6 @@ router.get('/tasks/:taskId/subtasks', subtaskController.listSubtasks);
  *   post:
  *     summary: Create a new subtask
  *     tags: [Subtasks]
- *     parameters:
- *       - in: path
- *         name: taskId
- *         required: true
- *         schema:
- *           type: string
- *         description: The ID of the task to add a subtask to
  *     requestBody:
  *       required: true
  *       content:
@@ -73,14 +246,25 @@ router.get('/tasks/:taskId/subtasks', subtaskController.listSubtasks);
  *           schema:
  *             type: object
  *             properties:
+ *               taskId:
+ *                 type: string
  *               subject:
  *                 type: string
  *               deadline:
  *                 type: string
- *                 format: date
+ *                 format: date-time
  *               status:
  *                 type: string
  *                 enum: [pending, in progress, completed]
+ *           examples:
+ *             example1:
+ *               value:
+ *                 {
+ *                   "taskId": "60c72b2f5f1b2c001c8e4d0e",
+ *                   "subject": "Complete documentation",
+ *                   "deadline": "2024-08-14T19:23:37.434Z",
+ *                   "status": "pending"
+ *                 }
  *     responses:
  *       201:
  *         description: Subtask created successfully
@@ -88,10 +272,19 @@ router.get('/tasks/:taskId/subtasks', subtaskController.listSubtasks);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Subtask'
+ *             examples:
+ *               example1:
+ *                 value:
+ *                   {
+ *                     "subject": "Complete documentation",
+ *                     "deadline": "2024-08-14T19:23:37.434Z",
+ *                     "status": "pending",
+ *                     "isDeleted": false
+ *                   }
  *       400:
  *         description: Invalid request
  *       404:
- *         description: Task not found or deleted
+ *         description: Task not found
  *       500:
  *         description: Server error
  */
@@ -104,12 +297,6 @@ router.post('/tasks/:taskId/subtasks', subtaskController.addSubtask);
  *     summary: Update a subtask
  *     tags: [Subtasks]
  *     parameters:
- *       - in: path
- *         name: taskId
- *         required: true
- *         schema:
- *           type: string
- *         description: The ID of the task containing the subtask
  *       - in: path
  *         name: subtaskId
  *         required: true
@@ -127,10 +314,18 @@ router.post('/tasks/:taskId/subtasks', subtaskController.addSubtask);
  *                 type: string
  *               deadline:
  *                 type: string
- *                 format: date
+ *                 format: date-time
  *               status:
  *                 type: string
  *                 enum: [pending, in progress, completed]
+ *           examples:
+ *             example1:
+ *               value:
+ *                 {
+ *                   "subject": "Update documentation",
+ *                   "deadline": "2024-08-15T19:23:37.434Z",
+ *                   "status": "in progress"
+ *                 }
  *     responses:
  *       200:
  *         description: The updated subtask
@@ -138,10 +333,19 @@ router.post('/tasks/:taskId/subtasks', subtaskController.addSubtask);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Subtask'
+ *             examples:
+ *               example1:
+ *                 value:
+ *                   {
+ *                     "subject": "Update documentation",
+ *                     "deadline": "2024-08-15T19:23:37.434Z",
+ *                     "status": "in progress",
+ *                     "isDeleted": false
+ *                   }
  *       400:
  *         description: Invalid request
  *       404:
- *         description: Subtask not found or deleted
+ *         description: Subtask not found
  *       500:
  *         description: Server error
  */
@@ -154,12 +358,6 @@ router.put('/tasks/:taskId/subtasks/:subtaskId', subtaskController.editSubtask);
  *     summary: Delete a subtask
  *     tags: [Subtasks]
  *     parameters:
- *       - in: path
- *         name: taskId
- *         required: true
- *         schema:
- *           type: string
- *         description: The ID of the task containing the subtask
  *       - in: path
  *         name: subtaskId
  *         required: true
