@@ -11,12 +11,11 @@ exports.listTasks = async (req, res) => {
       return res.status(400).json({ error: 'Invalid userId format' });
     }
 
-    const user = await User.findById(userId, 'tasks').lean(); // Use lean() for faster queries
+    const user = await User.findById(userId, 'tasks').lean(); 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Filter tasks and subtasks in a single pass
     const tasks = user.tasks.reduce((filteredTasks, task) => {
       if (!task.isDeleted) {
         task.subtasks = task.subtasks.filter(subtask => !subtask.isDeleted);
@@ -69,29 +68,27 @@ exports.editTask = async (req, res) => {
     const { taskId } = req.params;
     const { subject, deadline, status } = req.body;
 
-    // Validate taskId format
     if (!mongoose.Types.ObjectId.isValid(taskId)) {
       return res.status(400).json({ error: 'Invalid taskId format' });
     }
 
-    // Find the user who has the task
     const user = await User.findOne({ 'tasks._id': taskId });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    // Find the specific task using mongooes inbuilt method.id
+    
     const task = user.tasks.id(taskId); 
     if (!task || task.isDeleted) {
       return res.status(404).json({ error: 'Task not found or deleted' });
     }
 
-    // Update task details
+   
     if (subject) task.subject = subject;
     if (deadline) task.deadline = new Date(deadline);
     if (status) task.status = status;
 
-    await user.save(); // Save the updated user document
-    res.json(task); // Respond with the updated task
+    await user.save(); 
+    res.json(task); 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -102,28 +99,24 @@ exports.deleteTask = async (req, res) => {
   try {
     const { taskId } = req.params;
 
-    // Validate taskId format
     if (!mongoose.Types.ObjectId.isValid(taskId)) {
       return res.status(400).json({ error: 'Invalid taskId format' });
     }
 
-    // Find the user who has the task
     const user = await User.findOne({ 'tasks._id': taskId });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Find the specific task
     const task = user.tasks.id(taskId);
     if (!task || task.isDeleted) {
       return res.status(404).json({ error: 'Task not found or already deleted' });
     }
 
-    // Mark the task as deleted
     task.isDeleted = true;
 
-    await user.save(); // Save the updated user document
-    res.json({ message: 'Task marked as deleted' }); // Respond with success message
+    await user.save(); 
+    res.json({ message: 'Task marked as deleted' }); 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -131,16 +124,15 @@ exports.deleteTask = async (req, res) => {
 
 exports.listDeletedTasks = async (req, res) => {
   try {
-    // Retrieve all users from the database
-    const users = await User.find().lean(); // Use lean() for faster queries
+    
+    const users = await User.find().lean(); 
 
     if (!users) {
       return res.status(404).json({ error: 'No users found' });
     }
 
-    // Find all tasks marked as deleted
     const deletedTasks = users.flatMap(user =>
-      user.tasks.filter(task => task.isDeleted) // Filter tasks marked as deleted
+      user.tasks.filter(task => task.isDeleted) 
     );
 
     if (deletedTasks.length === 0) {

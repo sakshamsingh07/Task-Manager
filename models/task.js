@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const subtaskSchema = require('./subtask');
 
 const taskSchema = new mongoose.Schema({
-  //taskId: { type: mongoose.Schema.Types.ObjectId, default: mongoose.Types.ObjectId },
   subject: { type: String, required: true },
   deadline: { type: Date, required: true },
   status: { type: String, enum: ['pending', 'in progress', 'completed'], default: 'pending' },
