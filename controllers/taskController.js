@@ -3,6 +3,33 @@ const User = require('../models/user');
 const { validateTask } = require('../utils/validateTask');
 
 
+// exports.listTasks = async (req, res) => {
+//   try {
+//     const { userId } = req.query;
+
+//     if (!mongoose.Types.ObjectId.isValid(userId)) {
+//       return res.status(400).json({ error: 'Invalid userId format' });
+//     }
+
+//     const user = await User.findById(userId, 'tasks').lean(); 
+//     if (!user) {
+//       return res.status(404).json({ error: 'User not found' });
+//     }
+
+//     const tasks = user.tasks.reduce((filteredTasks, task) => {
+//       if (!task.isDeleted) {
+//         task.subtasks = task.subtasks.filter(subtask => !subtask.isDeleted);
+//         filteredTasks.push(task);
+//       }
+//       return filteredTasks;
+//     }, []);
+
+//     res.json(tasks);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
 exports.listTasks = async (req, res) => {
   try {
     const { userId } = req.query;
@@ -11,18 +38,35 @@ exports.listTasks = async (req, res) => {
       return res.status(400).json({ error: 'Invalid userId format' });
     }
 
-    const user = await User.findById(userId, 'tasks').lean(); 
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    const tasks = await User.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(userId) } }, 
+      { $unwind: "$tasks" }, 
+      { $match: { "tasks.isDeleted": false } }, 
+      {
+        $project: {
+          _id: 0, 
+          task: {
+            $mergeObjects: [
+              "$tasks",
+              {
+                subtasks: {
+                  $filter: {
+                    input: "$tasks.subtasks",
+                    as: "subtask",
+                    cond: { $eq: ["$$subtask.isDeleted", false] }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      { $replaceRoot: { newRoot: "$task" } }
+    ]);
 
-    const tasks = user.tasks.reduce((filteredTasks, task) => {
-      if (!task.isDeleted) {
-        task.subtasks = task.subtasks.filter(subtask => !subtask.isDeleted);
-        filteredTasks.push(task);
-      }
-      return filteredTasks;
-    }, []);
+    if (tasks.length === 0) {
+      return res.status(404).json({ error: 'No tasks found' });
+    }
 
     res.json(tasks);
   } catch (error) {
