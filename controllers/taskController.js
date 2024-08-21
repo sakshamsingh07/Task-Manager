@@ -31,6 +31,8 @@ exports.listTasks = async (req, res) => {
 };
 
 
+
+
 exports.addTask = async (req, res) => {
   try {
     validateTask(req.body);
@@ -122,24 +124,27 @@ exports.deleteTask = async (req, res) => {
   }
 };
 
+
 exports.listDeletedTasks = async (req, res) => {
   try {
-    
     const users = await User.find().lean(); 
 
-    if (!users) {
+    if (!users || users.length === 0) {
       return res.status(404).json({ error: 'No users found' });
     }
 
-    const deletedTasks = users.flatMap(user =>
-      user.tasks.filter(task => task.isDeleted) 
-    );
+    const deletedTasks = users.flatMap(user => {
+      if (user.tasks && Array.isArray(user.tasks)) {
+        return user.tasks.filter(task => task.isDeleted); 
+      }
+      return []; 
+    });
 
     if (deletedTasks.length === 0) {
       return res.status(404).json({ message: 'No deleted tasks found' });
     }
 
-    res.json(deletedTasks);
+    res.json(deletedTasks); 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
